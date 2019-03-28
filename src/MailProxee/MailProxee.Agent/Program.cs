@@ -38,12 +38,12 @@ namespace MailProxee.Agent
             using (var imap = new ImapClient())
             using (var smtp = new SmtpClient())
             {
-                imap.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                imap.ServerCertificateValidationCallback = (sender, certificate, chain, errors) => true;
 
                 await imap.ConnectAsync(configuration.Host, configuration.ImapPort, SocketOptions);
                 await imap.AuthenticateAsync(configuration.UserName, configuration.Password);
 
-                smtp.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                smtp.ServerCertificateValidationCallback = (sender, certificate, chain, errors) => true;
 
                 await smtp.ConnectAsync(configuration.Host, configuration.SmtpPort, SocketOptions);
                 await smtp.AuthenticateAsync(configuration.UserName, configuration.Password);
