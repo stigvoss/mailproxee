@@ -68,7 +68,7 @@ namespace MailProxee.Agent
                                     await HandleRequestMessage(message, smtp, configuration);
                                     break;
                                 case MessageCategory.Incoming:
-                                    await HandleIncoming(message, smtp);
+                                    await HandleIncoming(message, smtp, configuration);
                                     break;
                             }
 
@@ -99,7 +99,7 @@ namespace MailProxee.Agent
             }
         }
 
-        private static async Task HandleIncoming(MimeMessage message, SmtpClient smtp)
+        private static async Task HandleIncoming(MimeMessage message, SmtpClient smtp, Configuration configuration)
         {
             var destinations = message.To.Mailboxes
                 .Select(mailboxAddress => mailboxAddress.Address)
@@ -112,7 +112,7 @@ namespace MailProxee.Agent
 
             foreach (var destination in destinations)
             {
-                var from = new[] { new MailboxAddress($"{Guid.NewGuid().ToString()}@reply.mailprox.ee") };
+                var from = new[] { new MailboxAddress($"{Guid.NewGuid().ToString()}@{configuration.ReplyDomain}") };
                 var to = new[] { new MailboxAddress(destination) };
 
                 var forwardMessage = new MimeMessage(from, to, message.Subject, message.Body);
