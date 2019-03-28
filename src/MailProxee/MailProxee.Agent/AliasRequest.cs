@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 
-namespace MailProxee.RequestAgent
+namespace MailProxee.Agent
 {
     internal class AliasRequest
     {

@@ -1,6 +1,6 @@
 ﻿using MimeKit;
 
-namespace MailProxee.RequestAgent
+namespace MailProxee.Agent
 {
     public class AliasResponse
     {
