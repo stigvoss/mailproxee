@@ -8,11 +8,12 @@ namespace Module.EmailProxy.Infrastructure
     public class Message
     {
         private readonly MimeMessage _message;
+        private readonly IMessageSummary _summary;
 
-        public Message(MimeMessage message, int? index = null)
+        public Message(MimeMessage message, IMessageSummary summary)
         {
-            Index = index;
             _message = message;
+            _summary = summary;
         }
 
         public Message(string recipient, string sender, string subject, string message)
@@ -29,8 +30,6 @@ namespace Module.EmailProxy.Infrastructure
             _message.From.Add(new MailboxAddress(sender));
             _message.To.Add(new MailboxAddress(recipient));
         }
-
-        public int? Index { get; }
 
         public IEnumerable<string> Recipients
         {
@@ -73,6 +72,9 @@ namespace Module.EmailProxy.Infrastructure
                 _message.Subject = value;
             }
         }
+
+        public UniqueId? UniqueId
+            => _summary?.UniqueId;
 
         public static explicit operator MimeMessage(Message message)
             => message._message;

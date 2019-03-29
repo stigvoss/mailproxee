@@ -53,12 +53,16 @@ namespace Module.EmailProxy.Infrastructure
 
         public async Task<IEnumerable<Message>> FetchMessages()
         {
-            var messages = new Message[_imap.Inbox.Count];
+            var summaries = await _imap.Inbox.FetchAsync(0, -1, MessageSummaryItems.UniqueId | MessageSummaryItems.Full);
 
-            for (var index = 0; index < _imap.Inbox.Count; index++)
+            var messages = new Message[summaries.Count];
+
+            for (var index = 0; index < summaries.Count; index++)
             {
-                var message = await _imap.Inbox.GetMessageAsync(index);
-                messages[index] = new Message(message, index);
+                var summary = summaries[index];
+
+                var message = await _imap.Inbox.GetMessageAsync(summary.UniqueId);
+                messages[index] = new Message(message, summary);
             }
 
             return messages;
@@ -71,9 +75,9 @@ namespace Module.EmailProxy.Infrastructure
 
         internal async Task PermitDeletion(Message message)
         {
-            if (message.Index.HasValue)
+            if (message.UniqueId.HasValue)
             {
-                await _imap.Inbox.AddFlagsAsync(message.Index.Value, MessageFlags.Deleted, true);
+                await _imap.Inbox.AddFlagsAsync(message.UniqueId.Value, MessageFlags.Deleted, true);
             }
         }
 
