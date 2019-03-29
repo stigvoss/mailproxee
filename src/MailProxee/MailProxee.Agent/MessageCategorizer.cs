@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using MailKit;
 using MimeKit;
 
 namespace MailProxee.Agent
@@ -25,15 +26,15 @@ namespace MailProxee.Agent
         private readonly string _requestAddress;
         private readonly string _incomingDomain;
 
-        internal MessageCategory Categorize(MimeMessage message)
+        internal MessageCategory Categorize(Envelope envelope)
         {
             var category = MessageCategory.Unknown;
 
-            if (IsRequest(message))
+            if (IsRequest(envelope))
             {
                 category = MessageCategory.Request;
             }
-            else if (IsIncoming(message))
+            else if (IsIncoming(envelope))
             {
                 category = MessageCategory.Incoming;
             }
@@ -41,9 +42,9 @@ namespace MailProxee.Agent
             return category;
         }
 
-        private bool IsIncoming(MimeMessage message)
+        private bool IsIncoming(Envelope envelope)
         {
-            return message.To.Mailboxes.Any(e => IsIncomingAddress(e.Address));
+            return envelope.To.Mailboxes.Any(e => IsIncomingAddress(e.Address));
         }
 
         private bool IsIncomingAddress(string address)
@@ -62,10 +63,10 @@ namespace MailProxee.Agent
                 && domain.ToLowerInvariant() == _incomingDomain;
         }
 
-        private bool IsRequest(MimeMessage message)
+        private bool IsRequest(Envelope envelope)
         {
-            return message.To.Mailboxes.Any(e => e.Address == _requestAddress)
-                && message.To.Count == 1;
+            return envelope.To.Mailboxes.Any(e => e.Address == _requestAddress)
+                && envelope.To.Count == 1;
         }
     }
 }

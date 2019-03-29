@@ -1,4 +1,5 @@
-﻿using MimeKit;
+﻿using MailKit;
+using MimeKit;
 using System;
 using System.Linq;
 
@@ -6,14 +7,14 @@ namespace MailProxee.Agent
 {
     internal class AliasRequest
     {
-        private readonly MimeMessage _message;
+        private readonly Envelope _envelope;
         private readonly string _domain;
         private readonly string _incomingDomain;
         private readonly string _requestAddress;
 
-        public AliasRequest(MimeMessage mime, Configuration configuration)
+        public AliasRequest(Envelope envelope, Configuration configuration)
         {
-            _message = mime;
+            _envelope = envelope;
             _domain = configuration.Domain;
             _incomingDomain = configuration.IncomingDomain;
             _requestAddress = configuration.RequestAddress;
@@ -21,8 +22,8 @@ namespace MailProxee.Agent
 
         public bool IsExpectedRecipient()
         {
-            return _message.To.Count == 1
-                && _message.To.Mailboxes.Any(e => e.Address == _requestAddress);
+            return _envelope.To.Count == 1
+                && _envelope.To.Mailboxes.Any(e => e.Address == _requestAddress);
         }
 
         public AliasResponse NewResponseWith(Guid guid)
@@ -30,8 +31,8 @@ namespace MailProxee.Agent
             var message = new AliasResponse
             {
                 Subject = $"A {_domain} alias has been created as requested.",
-                Recipient = _message.From.FirstOrDefault() as MailboxAddress,
-                Sender = _message.To.FirstOrDefault() as MailboxAddress,
+                Recipient = _envelope.From.FirstOrDefault() as MailboxAddress,
+                Sender = _envelope.To.FirstOrDefault() as MailboxAddress,
                 Content = $"{guid.ToString()}@{_incomingDomain}"
             };
 

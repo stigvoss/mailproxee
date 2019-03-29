@@ -48,33 +48,37 @@ namespace MailProxee.Agent
                 await smtp.ConnectAsync(configuration.Host, configuration.SmtpPort, SocketOptions);
                 await smtp.AuthenticateAsync(configuration.UserName, configuration.Password);
 
-                imap.Inbox.Open(FolderAccess.ReadWrite);
+                await imap.Inbox.OpenAsync(FolderAccess.ReadWrite);
 
-                var task = Task.Run(async () =>
+                var messageHandler = Task.Run(async () =>
                 {
                     var categorizer = new MessageCategorizer(configuration);
 
                     while (!_tokenSource.Token.IsCancellationRequested)
                     {
-                        for (var index = 0; index < imap.Inbox.Count; index++)
-                        {
-                            var message = await imap.Inbox.GetMessageAsync(index);
+                        var messages = await imap.Inbox.FetchAsync(0, imap.Inbox.Count, MessageSummaryItems.All);
 
-                            var category = categorizer.Categorize(message);
+                        foreach (var message in messages)
+                        {
+                            var category = categorizer.Categorize(message.Envelope);
 
                             switch (category)
                             {
                                 case MessageCategory.Request:
-                                    await HandleRequestMessage(message, smtp, configuration);
+                                    await HandleRequestMessage(message.Envelope, smtp, configuration)
+                                        .ConfigureAwait(false);
                                     break;
                                 case MessageCategory.Incoming:
-                                    await HandleIncoming(message, smtp, configuration);
+                                    await HandleIncoming(message, smtp, configuration)
+                                        .ConfigureAwait(false);
                                     break;
                             }
-
-                            await imap.Inbox.AddFlagsAsync(index, MessageFlags.Deleted, true);
+                            
+                            await imap.Inbox.AddFlagsAsync(message.Index, MessageFlags.Deleted, true);
                         }
-                        await imap.Inbox.ExpungeAsync();
+
+                        await imap.Inbox.ExpungeAsync()
+                            .ConfigureAwait(false);
 
                         try
                         {
@@ -92,16 +96,18 @@ namespace MailProxee.Agent
 
                 _tokenSource.Cancel();
 
-                await task;
+                await messageHandler;
 
                 await imap.DisconnectAsync(true);
                 await smtp.DisconnectAsync(true);
             }
         }
 
-        private static async Task HandleIncoming(MimeMessage message, SmtpClient smtp, Configuration configuration)
+        private static async Task HandleIncoming(IMessageSummary message, SmtpClient smtp, Configuration configuration)
         {
-            var destinations = message.To.Mailboxes
+            var envelope = message.Envelope;
+
+            var destinations = envelope.To.Mailboxes
                 .Select(mailboxAddress => mailboxAddress.Address)
                 .Select(address => address.Split('@').FirstOrDefault())
                 .Where(identifier => identifier is object)
@@ -112,18 +118,20 @@ namespace MailProxee.Agent
 
             foreach (var destination in destinations)
             {
-                var from = new[] { new MailboxAddress($"{Guid.NewGuid().ToString()}@{configuration.ReplyDomain}") };
+                var alias = Guid.NewGuid().ToString();
+
+                var from = new[] { new MailboxAddress($"{alias}@{configuration.ReplyDomain}") };
                 var to = new[] { new MailboxAddress(destination) };
 
-                var forwardMessage = new MimeMessage(from, to, message.Subject, message.Body);
+                var forwardMessage = new MimeMessage(from, to, envelope.Subject, message.Body);
 
                 await smtp.SendAsync(forwardMessage);
             }
         }
 
-        private static async Task HandleRequestMessage(MimeMessage message, SmtpClient smtp, Configuration configuration)
+        private static async Task HandleRequestMessage(Envelope envelope, SmtpClient smtp, Configuration configuration)
         {
-            var request = new AliasRequest(message, configuration);
+            var request = new AliasRequest(envelope, configuration);
 
             if (request.IsExpectedRecipient())
             {
