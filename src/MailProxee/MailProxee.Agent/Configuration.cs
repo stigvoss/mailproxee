@@ -33,7 +33,7 @@ namespace MailProxee.Agent
 
         public string Password { get; set; }
 
-        public static async Task<Configuration> Load(string path)
+        public static async Task<Configuration> LoadFrom(string path)
         {
             var content = await File.ReadAllTextAsync(path);
             return JsonConvert.DeserializeObject<Configuration>(content);

@@ -24,7 +24,7 @@ namespace MailProxee.Agent
 
         private static async Task Run(Options options)
         {
-            var configuration = await Configuration.Load(options.Configuration);
+            var configuration = await Configuration.LoadFrom(options.Configuration);
 
             using (var handler = new MailboxHandler(configuration))
             {
