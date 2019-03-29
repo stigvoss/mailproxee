@@ -29,7 +29,6 @@ namespace MailProxee.Agent
             using (var handler = new MailboxHandler(configuration))
             {
                 await handler.PrepareConnection();
-                await handler.Open();
 
                 var messageHandler = handler.HandleMessages(_tokenSource.Token);
 
