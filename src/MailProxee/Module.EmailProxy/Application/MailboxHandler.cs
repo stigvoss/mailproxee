@@ -3,6 +3,9 @@ using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using Module.EmailProxy.Domain;
+using Module.EmailProxy.Domain.Services;
+using Module.EmailProxy.Infrastructure;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -11,19 +14,19 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MailProxee.Agent
+namespace Module.EmailProxy.Application
 {
-    internal class MailboxHandler : IDisposable
+    public class MailboxHandler : IDisposable
     {
         private const SecureSocketOptions SocketOptions = SecureSocketOptions.Auto;
 
         private static readonly ConcurrentDictionary<Guid, string> _forwarding = new ConcurrentDictionary<Guid, string>();
         
-        private readonly Configuration _configuration;
+        private readonly IMailboxHandlerConfiguration _configuration;
         private readonly ImapClient _imap;
         private readonly SmtpClient _smtp;
 
-        public MailboxHandler(Configuration configuration)
+        public MailboxHandler(IMailboxHandlerConfiguration configuration)
         {
             _configuration = configuration;
 
@@ -89,7 +92,7 @@ namespace MailProxee.Agent
                 }).ConfigureAwait(false);
         }
 
-        private static async Task HandleIncoming(IMessageSummary message, SmtpClient smtp, Configuration configuration)
+        private static async Task HandleIncoming(IMessageSummary message, SmtpClient smtp, IInternetDomainConfiguration configuration)
         {
             var envelope = message.Envelope;
 
@@ -115,7 +118,7 @@ namespace MailProxee.Agent
             }
         }
 
-        private static async Task HandleRequestMessage(Envelope envelope, SmtpClient smtp, Configuration configuration)
+        private static async Task HandleRequestMessage(Envelope envelope, SmtpClient smtp, IInternetDomainConfiguration configuration)
         {
             var request = new AliasRequest(envelope, configuration);
 

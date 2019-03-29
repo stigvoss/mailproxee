@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using Module.EmailProxy.Application;
+using Newtonsoft.Json;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace MailProxee.Agent
 {
-    public class Configuration
+    public class Configuration : IMailboxHandlerConfiguration
     {
         public string Domain { get; set; }
 

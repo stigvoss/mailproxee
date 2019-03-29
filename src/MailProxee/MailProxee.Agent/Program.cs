@@ -4,6 +4,7 @@ using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using Module.EmailProxy.Application;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
