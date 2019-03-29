@@ -6,6 +6,6 @@ using System.Text;
 namespace Module.EmailProxy.Application
 {
     public interface IMailboxHandlerConfiguration
-        : IInternetDomainConfiguration, IMailServerConfiguration
+        : IInternetDomainConfiguration, IMailClientConfiguration
     { }
 }

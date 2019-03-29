@@ -18,66 +18,48 @@ namespace Module.EmailProxy.Application
 {
     public class MailboxHandler : IDisposable
     {
-        private const SecureSocketOptions SocketOptions = SecureSocketOptions.Auto;
-
-        private static readonly ConcurrentDictionary<Guid, string> _forwarding = new ConcurrentDictionary<Guid, string>();
-        
         private readonly IMailboxHandlerConfiguration _configuration;
-        private readonly ImapClient _imap;
-        private readonly SmtpClient _smtp;
+        private readonly MailClient _client;
 
         public MailboxHandler(IMailboxHandlerConfiguration configuration)
         {
             _configuration = configuration;
-
-            _imap = new ImapClient();
-            _smtp = new SmtpClient();
-
-            _imap.ServerCertificateValidationCallback += UnconditionalCertificateAcceptance;
-            _smtp.ServerCertificateValidationCallback += UnconditionalCertificateAcceptance;
-        }
-
-        public async Task PrepareConnection()
-        {
-            await _imap.ConnectAsync(_configuration.Host, _configuration.ImapPort, SocketOptions);
-            await _imap.AuthenticateAsync(_configuration.UserName, _configuration.Password);
-
-            await _smtp.ConnectAsync(_configuration.Host, _configuration.SmtpPort, SocketOptions);
-            await _smtp.AuthenticateAsync(_configuration.UserName, _configuration.Password);
-
-            await _imap.Inbox.OpenAsync(FolderAccess.ReadWrite);
+            _client = new MailClient(configuration);
         }
 
         public async Task HandleMessages(CancellationToken token)
         {
+            await _client.PrepareConnection();
+
             await Task.Run(async () =>
                 {
                     var categorizer = new MessageCategorizer(_configuration);
+                    var mailman = new MailmanService(_client, _configuration);
 
                     while (!token.IsCancellationRequested)
                     {
-                        var messages = await _imap.Inbox.FetchAsync(0, -1, MessageSummaryItems.All);
+                        var messages = await _client.FetchMessages();
 
                         foreach (var message in messages)
                         {
-                            var category = categorizer.Categorize(message.Envelope);
+                            var category = categorizer.Categorize(message);
 
                             switch (category)
                             {
                                 case MessageCategory.Request:
-                                    await HandleRequestMessage(message.Envelope, _smtp, _configuration)
+                                    await mailman.SendNewAlias(message)
                                         .ConfigureAwait(false);
                                     break;
                                 case MessageCategory.Incoming:
-                                    await HandleIncoming(message, _smtp, _configuration)
+                                    await mailman.ForwardEmail(message)
                                         .ConfigureAwait(false);
                                     break;
                             }
 
-                            await _imap.Inbox.AddFlagsAsync(message.Index, MessageFlags.Deleted, true);
+                            await _client.PermitDeletion(message);
                         }
 
-                        await _imap.Inbox.ExpungeAsync()
+                        await _client.DeleteMessages()
                             .ConfigureAwait(false);
 
                         try
@@ -92,60 +74,9 @@ namespace Module.EmailProxy.Application
                 }).ConfigureAwait(false);
         }
 
-        private static async Task HandleIncoming(IMessageSummary message, SmtpClient smtp, IInternetDomainConfiguration configuration)
-        {
-            var envelope = message.Envelope;
-
-            var destinations = envelope.To.Mailboxes
-                .Select(mailboxAddress => mailboxAddress.Address)
-                .Select(address => address.Split('@').FirstOrDefault())
-                .Where(identifier => identifier is object)
-                .Where(identifier => Guid.TryParse(identifier, out var _))
-                .Select(identifier => Guid.Parse(identifier))
-                .Where(guid => _forwarding.ContainsKey(guid))
-                .Select(guid => _forwarding[guid]);
-
-            foreach (var destination in destinations)
-            {
-                var alias = Guid.NewGuid().ToString();
-
-                var from = new[] { new MailboxAddress($"{alias}@{configuration.ReplyDomain}") };
-                var to = new[] { new MailboxAddress(destination) };
-
-                var forwardMessage = new MimeMessage(from, to, envelope.Subject, message.Body);
-
-                await smtp.SendAsync(forwardMessage);
-            }
-        }
-
-        private static async Task HandleRequestMessage(Envelope envelope, SmtpClient smtp, IInternetDomainConfiguration configuration)
-        {
-            var request = new AliasRequest(envelope, configuration);
-
-            if (request.IsExpectedRecipient())
-            {
-                var alias = Guid.NewGuid();
-                var response = request.NewResponseWith(alias);
-
-                _forwarding.TryAdd(alias, response.Recipient.Address);
-
-                await smtp.SendAsync(response);
-            }
-        }
-
         public void Dispose()
         {
-            _imap.Disconnect(true);
-            _smtp.Disconnect(true);
-
-            _imap.Dispose();
-            _smtp.Dispose();
+            _client.Dispose();
         }
-
-        private bool UnconditionalCertificateAcceptance(
-            object sender,
-            X509Certificate certificate,
-            X509Chain chain,
-            SslPolicyErrors errors) => true;
     }
 }

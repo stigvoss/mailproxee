@@ -27,15 +27,15 @@ namespace Module.EmailProxy.Domain.Services
         private readonly string _requestAddress;
         private readonly string _incomingDomain;
 
-        public MessageCategory Categorize(Envelope envelope)
+        public MessageCategory Categorize(Message message)
         {
             var category = MessageCategory.Unknown;
 
-            if (IsRequest(envelope))
+            if (IsRequest(message))
             {
                 category = MessageCategory.Request;
             }
-            else if (IsIncoming(envelope))
+            else if (IsIncoming(message))
             {
                 category = MessageCategory.Incoming;
             }
@@ -43,9 +43,9 @@ namespace Module.EmailProxy.Domain.Services
             return category;
         }
 
-        private bool IsIncoming(Envelope envelope)
+        private bool IsIncoming(Message message)
         {
-            return envelope.To.Mailboxes.Any(e => IsIncomingAddress(e.Address));
+            return message.Recipients.Any(address => IsIncomingAddress(address));
         }
 
         private bool IsIncomingAddress(string address)
@@ -64,10 +64,10 @@ namespace Module.EmailProxy.Domain.Services
                 && domain.ToLowerInvariant() == _incomingDomain;
         }
 
-        private bool IsRequest(Envelope envelope)
+        private bool IsRequest(Message message)
         {
-            return envelope.To.Mailboxes.Any(e => e.Address == _requestAddress)
-                && envelope.To.Count == 1;
+            return message.Recipients.Any(address => address == _requestAddress)
+                && message.Recipients.Count() == 1;
         }
     }
 }

@@ -6,7 +6,7 @@ using MailKit.Security;
 
 namespace Module.EmailProxy.Infrastructure
 {
-    public interface IMailServerConfiguration
+    public interface IMailClientConfiguration
     {
         string Host { get; }
 
