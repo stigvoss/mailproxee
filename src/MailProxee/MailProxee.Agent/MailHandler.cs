@@ -34,17 +34,14 @@ namespace MailProxee.Agent
             _smtp.ServerCertificateValidationCallback += UnconditionalCertificateAcceptance;
         }
 
-        public async Task Connect()
+        public async Task PrepareConnection()
         {
             await _imap.ConnectAsync(_configuration.Host, _configuration.ImapPort, SocketOptions);
             await _imap.AuthenticateAsync(_configuration.UserName, _configuration.Password);
 
             await _smtp.ConnectAsync(_configuration.Host, _configuration.SmtpPort, SocketOptions);
             await _smtp.AuthenticateAsync(_configuration.UserName, _configuration.Password);
-        }
 
-        public async Task Open()
-        {
             await _imap.Inbox.OpenAsync(FolderAccess.ReadWrite);
         }
 
