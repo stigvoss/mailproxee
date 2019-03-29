@@ -53,7 +53,8 @@ namespace Module.EmailProxy.Infrastructure
 
         public async Task<IEnumerable<Message>> FetchMessages()
         {
-            var summaries = await _imap.Inbox.FetchAsync(0, -1, MessageSummaryItems.UniqueId | MessageSummaryItems.Full);
+            var summaries = await _imap.Inbox
+                .FetchAsync(0, -1, MessageSummaryItems.UniqueId | MessageSummaryItems.Full);
 
             var messages = new Message[summaries.Count];
 
