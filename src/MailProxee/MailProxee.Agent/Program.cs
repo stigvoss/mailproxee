@@ -30,7 +30,8 @@ namespace MailProxee.Agent
             {
                 await handler.PrepareConnection();
 
-                var messageHandler = handler.HandleMessages(_tokenSource.Token);
+                var messageHandler = handler.HandleMessages(_tokenSource.Token)
+                    .ConfigureAwait(false);
 
                 Console.WriteLine("Press [Enter] to exit...");
                 Console.ReadLine();
