@@ -26,12 +26,12 @@ namespace MailProxee.Agent
         {
             var configuration = await Configuration.Load(options.Configuration);
 
-            using (var handler = new MailHandler(configuration))
+            using (var handler = new MailboxHandler(configuration))
             {
                 await handler.PrepareConnection();
                 await handler.Open();
 
-                var messageHandler = handler.HandleMailboxMessages(_tokenSource.Token);
+                var messageHandler = handler.HandleMessages(_tokenSource.Token);
 
                 Console.WriteLine("Press [Enter] to exit...");
                 Console.ReadLine();
