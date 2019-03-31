@@ -46,7 +46,7 @@ namespace Module.EmailProxy.Infrastructure
         internal async Task Send(Message message)
         {
             var mime = (MimeMessage)message;
-
+            
             await _smtp.SendAsync(mime)
                 .ConfigureAwait(false);
         }
