@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using MailKit.Security;
 
-namespace Module.EmailProxy.Infrastructure
+namespace Module.EmailProxy.Infrastructure.Base
 {
     public interface IMailClientConfiguration
     {

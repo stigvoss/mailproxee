@@ -1,4 +1,5 @@
 ﻿using Module.EmailProxy.Infrastructure;
+using Module.EmailProxy.Infrastructure.Base;
 using System;
 using System.Collections.Generic;
 using System.Text;

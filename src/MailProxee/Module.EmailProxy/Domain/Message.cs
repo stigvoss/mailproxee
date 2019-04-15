@@ -1,5 +1,8 @@
 ﻿using MailKit;
 using MimeKit;
+using MimeKit.Utils;
+using Module.EmailProxy.Domain;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -59,6 +62,22 @@ namespace Module.EmailProxy.Infrastructure
 
                 _message.From.AddRange(senders);
             }
+        }
+
+        public void ConfigureForwarding(Alias alias, string replyTo)
+        {
+            _message.ResentSender = null;
+            _message.ResentFrom.Clear();
+            _message.ResentReplyTo.Clear();
+            _message.ResentTo.Clear();
+            _message.ResentCc.Clear();
+            _message.ResentBcc.Clear();
+
+            _message.ResentFrom.Add(new MailboxAddress(replyTo));
+            _message.ResentReplyTo.Add(new MailboxAddress(replyTo));
+            _message.ResentTo.Add(new MailboxAddress(alias.Recipient));
+            _message.ResentMessageId = MimeUtils.GenerateMessageId();
+            _message.ResentDate = DateTimeOffset.Now;
         }
 
         public string Subject

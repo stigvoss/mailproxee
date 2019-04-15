@@ -3,6 +3,7 @@ using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using Module.EmailProxy.Infrastructure.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
