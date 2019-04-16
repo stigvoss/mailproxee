@@ -6,7 +6,20 @@ using System.Threading.Tasks;
 
 namespace MailProxee.Agent
 {
-    public class Configuration : IMailboxHandlerConfiguration
+    public class Configuration
+    {
+        public MailboxConfiguration Mailbox { get; set; }
+
+        public DatabaseConfiguration Database { get; set; }
+
+        public static async Task<Configuration> LoadFrom(string path)
+        {
+            var content = await File.ReadAllTextAsync(path);
+            return JsonConvert.DeserializeObject<Configuration>(content);
+        }
+    }
+
+    public class MailboxConfiguration : IMailboxHandlerConfiguration
     {
         public string Domain { get; set; }
 
@@ -34,14 +47,6 @@ namespace MailProxee.Agent
         public string UserName { get; set; }
 
         public string Password { get; set; }
-
-        public DatabaseConfiguration Database { get; set; }
-
-        public static async Task<Configuration> LoadFrom(string path)
-        {
-            var content = await File.ReadAllTextAsync(path);
-            return JsonConvert.DeserializeObject<Configuration>(content);
-        }
     }
 
     public class DatabaseConfiguration : IDataSourceConfiguration

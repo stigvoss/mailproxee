@@ -27,7 +27,7 @@ namespace MailProxee.Agent
         {
             var configuration = await Configuration.LoadFrom(options.Configuration);
 
-            using (var handler = new MailboxHandler(configuration, configuration.Database))
+            using (var handler = new MailboxHandler(configuration.Mailbox, configuration.Database))
             {
                 var messageHandler = handler.HandleMessages(_tokenSource.Token)
                     .ConfigureAwait(false);
