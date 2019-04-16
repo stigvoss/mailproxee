@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Module.EmailProxy.Infrastructure
+namespace Module.EmailProxy.Infrastructure.Base
 {
     public interface IInternetDomainConfiguration
     {

@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using MailKit;
 using MimeKit;
 using Module.EmailProxy.Infrastructure;
+using Module.EmailProxy.Infrastructure.Base;
 
 namespace Module.EmailProxy.Domain.Services
 {

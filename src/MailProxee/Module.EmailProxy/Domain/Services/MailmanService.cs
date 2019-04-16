@@ -1,4 +1,6 @@
-﻿using Module.EmailProxy.Infrastructure;
+﻿using Module.EmailProxy.Domain.Base;
+using Module.EmailProxy.Infrastructure;
+using Module.EmailProxy.Infrastructure.Base;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,44 +15,66 @@ namespace Module.EmailProxy.Domain.Services
         private static readonly ConcurrentDictionary<Guid, string> _forwarding = new ConcurrentDictionary<Guid, string>();
 
         private readonly MailClient _client;
+        private readonly IRepository<Alias> _aliases;
         private readonly IInternetDomainConfiguration _configuration;
 
-        public MailmanService(MailClient client, IInternetDomainConfiguration configuration)
+        public MailmanService(MailClient client, IRepository<Alias> aliases, IInternetDomainConfiguration configuration)
         {
             _client = client;
+            _aliases = aliases;
             _configuration = configuration;
         }
 
         internal async Task ForwardEmail(Message message)
         {
-            var recipients = message.Recipients
+            var identifiers = message.Recipients.ToList()
                    .Select(address => address.Split('@').FirstOrDefault())
                    .Where(identifier => identifier is object)
                    .Where(identifier => Guid.TryParse(identifier, out var _))
-                   .Select(identifier => Guid.Parse(identifier))
-                   .Where(guid => _forwarding.ContainsKey(guid))
-                   .Select(guid => _forwarding[guid]);
+                   .Select(identifier => Guid.Parse(identifier));
 
-            var alias = Guid.NewGuid().ToString();
-            var sender = $"{alias}@{_configuration.ReplyDomain}";
+            foreach (var identifier in identifiers)
+            {
+                var alias = await _aliases.Find(identifier);
 
-            message.Senders = new[] { sender };
-            message.Recipients = recipients;
+                if (alias is object)
+                {
+                    var replyTo = $"{Guid.NewGuid().ToString()}@{_configuration.ReplyDomain}";
 
-            await _client.Send(message);
+                    message.ConfigureForwarding(alias, replyTo);
+
+                    await _client.Send(message)
+                        .ConfigureAwait(false);
+                }
+            }
         }
 
         internal async Task SendNewAlias(Message message)
         {
-            var alias = Guid.NewGuid().ToString();
+            var requester = message.Senders.FirstOrDefault();
 
-            var recipient = message.Senders.FirstOrDefault();
+            var alias = new Alias(requester);
+            await _aliases.Add(alias)
+                .ConfigureAwait(false);
+
             var sender = message.Recipients.FirstOrDefault();
 
-            var subject = $"A {_configuration.Domain} alias has been created as requested.";
-            var body = $"{alias}@{_configuration.IncomingDomain}";
+            var builder = new StringBuilder();
 
-            await _client.Send(new Message(recipient, sender, subject, body))
+            builder.AppendLine($"Hello {alias.Recipient}!");
+            builder.AppendLine();
+            builder.AppendLine($"We are happy to announce that your alias is ready for use.");
+            builder.AppendLine($"Any email sent to {alias.Id}@{_configuration.IncomingDomain} will be forwarded to {alias.Recipient}.");
+            builder.AppendLine();
+            builder.AppendLine("It is currently not possible to respond to any received addresses using your mailprox.ee alias.");
+            builder.AppendLine();
+            builder.AppendLine("Best regards,");
+            builder.AppendLine("mailprox.ee");
+
+            var subject = $"A {_configuration.Domain} alias was created.";
+            var body = $"{alias.Id}@{_configuration.IncomingDomain}";
+
+            await _client.Send(new Message(alias.Recipient, sender, subject, builder.ToString()))
                 .ConfigureAwait(false);
         }
     }

@@ -9,3 +9,9 @@ No proxy e-mail address will be used twice, when you have no more use for the ad
 Gmail aliases works by appending your own e-mail identifier using _+something_, e.g. appending _name@gmail.com_ with _+something_ to be _name+something@gmail.com_. This can be used to later catch simple spam by creating filters to delete anything sent to _name+something@gmail.com_.
 
 This is a simple but fairly effective mechanism to counter simple naive spam, but it is easy to revert the alias to your actual e-mail address. It does little to hide your true e-mail address, allowing for easy tracking across services using a single unique identifier, your e-mail.
+
+# Reference links for mail server setup
+
+* https://www.linode.com/docs/email/postfix/email-with-postfix-dovecot-and-mysql/
+* https://www.linode.com/docs/quick-answers/websites/secure-http-traffic-certbot/
+* https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-dkim-with-postfix-on-debian-wheezy
