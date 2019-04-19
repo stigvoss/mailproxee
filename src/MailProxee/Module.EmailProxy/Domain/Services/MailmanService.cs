@@ -66,13 +66,12 @@ namespace Module.EmailProxy.Domain.Services
             builder.AppendLine($"We are happy to announce that your alias is ready for use.");
             builder.AppendLine($"Any email sent to {alias.Id}@{_configuration.IncomingDomain} will be forwarded to {alias.Recipient}.");
             builder.AppendLine();
-            builder.AppendLine("It is currently not possible to respond to any received addresses using your mailprox.ee alias.");
+            builder.AppendLine($"It is currently not possible to respond to any received addresses using your {_configuration.Domain} alias.");
             builder.AppendLine();
             builder.AppendLine("Best regards,");
-            builder.AppendLine("mailprox.ee");
+            builder.AppendLine($"{_configuration.Domain}");
 
             var subject = $"A {_configuration.Domain} alias was created.";
-            var body = $"{alias.Id}@{_configuration.IncomingDomain}";
 
             await _client.Send(new Message(alias.Recipient, sender, subject, builder.ToString()))
                 .ConfigureAwait(false);

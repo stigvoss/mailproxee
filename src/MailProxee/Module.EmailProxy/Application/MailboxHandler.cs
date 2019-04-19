@@ -25,7 +25,6 @@ namespace Module.EmailProxy.Application
     {
         private readonly MailClient _client;
         private readonly MessageCategorizer _categorizer;
-        private readonly IAliasRepository _aliases;
         private readonly MailmanService _mailman;
 
         public MailboxHandler(IMailboxHandlerConfiguration mailboxHandler, IDataSourceConfiguration dataSource)
@@ -42,26 +41,35 @@ namespace Module.EmailProxy.Application
 
             _client = new MailClient(mailboxHandler);
             _categorizer = new MessageCategorizer(mailboxHandler);
-            _aliases = new AliasRepository(connection);
-            _mailman = new MailmanService(_client, _aliases, mailboxHandler);
+            var aliases = new AliasRepository(connection);
+            _mailman = new MailmanService(_client, aliases, mailboxHandler);
         }
 
         public async Task HandleMessages(CancellationToken token)
         {
-            await _client.PrepareConnection();
+            Console.Write("Connecting... ");
+            await _client.PrepareMailboxConnection();
+            Console.WriteLine("Done.");
 
             await Task.Run(async () =>
+            {
+                while (!token.IsCancellationRequested)
                 {
-                    while (!token.IsCancellationRequested)
-                    {
-                        var messages = await _client.FetchMessages();
+                    Console.Write("Fetching... ");
+                    var messages = await _client.FetchMessages();
+                    Console.WriteLine($"{messages.Count()} messages.");
 
+                    try
+                    {
                         foreach (var message in messages)
                         {
+                            Console.Write("Categorizing message... ");
                             try
                             {
                                 var category = _categorizer.Categorize(message);
+                                Console.WriteLine($"{category.ToString()}.");
 
+                                Console.Write("Processing message... ");
                                 switch (category)
                                 {
                                     case MessageCategory.Request:
@@ -73,28 +81,41 @@ namespace Module.EmailProxy.Application
                                             .ConfigureAwait(false);
                                         break;
                                 }
+                                Console.WriteLine("Done.");
 
+                                Console.Write("Mark for deletion... ");
                                 await _client.PermitDeletion(message);
+                                Console.WriteLine("Done.");
                             }
                             catch (Exception ex)
                             {
-                                Debug.WriteLine(ex);
+                                Console.WriteLine($"ERROR: {ex.Message}");
+                                Console.WriteLine(ex);
                             }
                         }
-
-                        await _client.DeleteMessages()
-                            .ConfigureAwait(false);
-
-                        try
-                        {
-                            await Task.Delay(10000, token);
-                        }
-                        catch (TaskCanceledException)
-                        {
-                            break;
-                        }
                     }
-                }).ConfigureAwait(false);
+                    finally
+                    {
+                        await _client.DisconnectSmtp();
+                    }
+
+                    Console.Write("Deleting messages... ");
+                    await _client.DeleteMessages()
+                        .ConfigureAwait(false);
+                    Console.WriteLine("Done.");
+
+                    try
+                    {
+                        Console.Write("Entering sleep... ");
+                        await Task.Delay(10000, token);
+                        Console.WriteLine("Continuing.");
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        break;
+                    }
+                }
+            }).ConfigureAwait(false);
         }
 
         public void Dispose()

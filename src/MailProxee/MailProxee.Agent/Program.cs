@@ -17,28 +17,39 @@ namespace MailProxee.Agent
     {
         private static readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            var result = Parser.Default.ParseArguments<Options>(args)
-                .WithParsed(async options => await Run(options));
+            var result = Parser.Default.ParseArguments<Options>(args);
+
+            if (result is Parsed<Options> options)
+            {
+                await Run(options.Value);
+            }
         }
 
         private static async Task Run(Options options)
         {
-            var configuration = await Configuration.LoadFrom(options.Configuration);
-
-            using (var handler = new MailboxHandler(configuration.Mailbox, configuration.Database))
+            try
             {
-                var messageHandler = handler.HandleMessages(_tokenSource.Token)
-                    .ConfigureAwait(false);
+                var configuration = await Configuration.LoadFrom(options.Configuration);
 
-                Console.WriteLine("Press [Enter] to exit...");
-                Console.ReadLine();
+                using (var handler = new MailboxHandler(configuration.Mailbox, configuration.Database))
+                {
+                    var messageHandler = handler.HandleMessages(_tokenSource.Token);
 
-                Console.WriteLine("Stopping...");
-                _tokenSource.Cancel();
+                    Console.WriteLine("Press [Enter] to exit...");
+                    Console.ReadLine();
 
-                await messageHandler;
+                    Console.WriteLine("Stopping...");
+                    _tokenSource.Cancel();
+
+                    await messageHandler;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR: {ex.Message}");
+                Console.WriteLine(ex);
             }
         }
     }

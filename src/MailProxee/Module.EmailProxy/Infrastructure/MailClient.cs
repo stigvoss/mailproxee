@@ -3,6 +3,7 @@ using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using Module.EmailProxy.Domain;
 using Module.EmailProxy.Infrastructure.Base;
 using System;
 using System.Collections.Generic;
@@ -33,26 +34,25 @@ namespace Module.EmailProxy.Infrastructure
             _smtp.ServerCertificateValidationCallback += UnconditionalCertificateAcceptance;
         }
 
-        public async Task PrepareConnection()
+        public async Task PrepareMailboxConnection()
         {
             await _imap.ConnectAsync(_configuration.Host, _configuration.ImapPort, SocketOptions);
             await _imap.AuthenticateAsync(_configuration.UserName, _configuration.Password);
-
-            await _smtp.ConnectAsync(_configuration.Host, _configuration.SmtpPort, SocketOptions);
-            await _smtp.AuthenticateAsync(_configuration.UserName, _configuration.Password);
 
             await _imap.Inbox.OpenAsync(FolderAccess.ReadWrite);
         }
 
         internal async Task Send(Message message)
         {
+            await ConnectSmtp();
+
             var mime = (MimeMessage)message;
-            
+
             await _smtp.SendAsync(mime)
                 .ConfigureAwait(false);
         }
 
-        public async Task<IEnumerable<Message>> FetchMessages()
+        public async Task<ICollection<Message>> FetchMessages()
         {
             var summaries = await _imap.Inbox
                 .FetchAsync(0, -1, MessageSummaryItems.UniqueId | MessageSummaryItems.Full);
@@ -68,6 +68,19 @@ namespace Module.EmailProxy.Infrastructure
             }
 
             return messages;
+        }
+
+        internal async Task ConnectSmtp()
+        {
+            if (!_smtp.IsConnected)
+            {
+                await _smtp.ConnectAsync(_configuration.Host, _configuration.SmtpPort, SocketOptions);
+            }
+
+            if (!_smtp.IsAuthenticated)
+            {
+                await _smtp.AuthenticateAsync(_configuration.UserName, _configuration.Password);
+            }
         }
 
         internal async Task DeleteMessages()
@@ -97,5 +110,13 @@ namespace Module.EmailProxy.Infrastructure
             X509Certificate certificate,
             X509Chain chain,
             SslPolicyErrors errors) => true;
+
+        internal async Task DisconnectSmtp()
+        {
+            if (_smtp.IsConnected)
+            {
+                await _smtp.DisconnectAsync(true);
+            }
+        }
     }
 }
