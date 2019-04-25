@@ -9,6 +9,7 @@ using Module.EmailProxy.Domain.Repositories;
 using Module.EmailProxy.Domain.Services;
 using Module.EmailProxy.Infrastructure;
 using Module.EmailProxy.Infrastructure.Base;
+using Module.EmailProxy.Infrastructure.Repositories;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Concurrent;

@@ -1,17 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.489
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailProxee.Agent", "MailProxee.Agent\MailProxee.Agent.csproj", "{D5CEDBC2-94F5-489D-A6A1-6EB977BCD8AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Module.EmailProxy", "Module.EmailProxy\Module.EmailProxy.csproj", "{C413992B-FD88-4439-90DF-900FB034B7BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Module.EmailProxy", "Module.EmailProxy\Module.EmailProxy.csproj", "{C413992B-FD88-4439-90DF-900FB034B7BF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{EA6F58F9-0843-4E3E-88B5-24F563773E42}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Module.EmailProxy", "Tests.Module.EmailProxy\Tests.Module.EmailProxy.csproj", "{3DAB74F9-547C-479F-A041-C4F535E79AC2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Module.EmailProxy", "Tests.Module.EmailProxy\Tests.Module.EmailProxy.csproj", "{3DAB74F9-547C-479F-A041-C4F535E79AC2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{10D26AC3-9E42-43D9-B706-C5DFB0D232A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailProxee.WebClient", "MailProxee.WebClient\MailProxee.WebClient.csproj", "{F6EEFC20-ACF6-4B3D-BAB7-F2EE4F3CCD7D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,10 @@ Global
 		{3DAB74F9-547C-479F-A041-C4F535E79AC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DAB74F9-547C-479F-A041-C4F535E79AC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DAB74F9-547C-479F-A041-C4F535E79AC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6EEFC20-ACF6-4B3D-BAB7-F2EE4F3CCD7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6EEFC20-ACF6-4B3D-BAB7-F2EE4F3CCD7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6EEFC20-ACF6-4B3D-BAB7-F2EE4F3CCD7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6EEFC20-ACF6-4B3D-BAB7-F2EE4F3CCD7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
