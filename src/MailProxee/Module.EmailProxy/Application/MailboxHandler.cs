@@ -90,7 +90,6 @@ namespace Module.EmailProxy.Application
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine($"ERROR: {ex.Message}");
                                 Console.WriteLine(ex);
                             }
                         }

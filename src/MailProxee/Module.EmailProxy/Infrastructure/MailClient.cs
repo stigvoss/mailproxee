@@ -36,15 +36,13 @@ namespace Module.EmailProxy.Infrastructure
 
         public async Task PrepareMailboxConnection()
         {
-            await _imap.ConnectAsync(_configuration.Host, _configuration.ImapPort, SocketOptions);
-            await _imap.AuthenticateAsync(_configuration.UserName, _configuration.Password);
-
-            await _imap.Inbox.OpenAsync(FolderAccess.ReadWrite);
+            await EnsureConnectionOf(_imap, _configuration);
+            await EnsureConnectionOf(_smtp, _configuration);
         }
 
         internal async Task Send(Message message)
         {
-            await ConnectSmtp();
+            await EnsureConnectionOf(_smtp, _configuration);
 
             var mime = (MimeMessage)message;
 
@@ -54,6 +52,8 @@ namespace Module.EmailProxy.Infrastructure
 
         public async Task<ICollection<Message>> FetchMessages()
         {
+            await EnsureConnectionOf(_imap, _configuration);
+
             var summaries = await _imap.Inbox
                 .FetchAsync(0, -1, MessageSummaryItems.UniqueId | MessageSummaryItems.Full);
 
@@ -70,29 +70,51 @@ namespace Module.EmailProxy.Infrastructure
             return messages;
         }
 
-        internal async Task ConnectSmtp()
-        {
-            if (!_smtp.IsConnected)
-            {
-                await _smtp.ConnectAsync(_configuration.Host, _configuration.SmtpPort, SocketOptions);
-            }
-
-            if (!_smtp.IsAuthenticated)
-            {
-                await _smtp.AuthenticateAsync(_configuration.UserName, _configuration.Password);
-            }
-        }
-
         internal async Task DeleteMessages()
         {
+            await EnsureConnectionOf(_imap, _configuration);
+
             await _imap.Inbox.ExpungeAsync();
         }
 
         internal async Task PermitDeletion(Message message)
         {
+            await EnsureConnectionOf(_imap, _configuration);
+
             if (message.UniqueId.HasValue)
             {
                 await _imap.Inbox.AddFlagsAsync(message.UniqueId.Value, MessageFlags.Deleted, true);
+            }
+        }
+
+        private async Task EnsureConnectionOf(ImapClient imap, IMailClientConfiguration configuration)
+        {
+            if (!imap.IsConnected)
+            {
+                await imap.ConnectAsync(configuration.Host, configuration.ImapPort, SocketOptions);
+            }
+
+            if (!imap.IsAuthenticated)
+            {
+                await imap.AuthenticateAsync(configuration.UserName, configuration.Password);
+            }
+
+            if (!imap.Inbox.IsOpen)
+            {
+                await imap.Inbox.OpenAsync(FolderAccess.ReadWrite);
+            }
+        }
+
+        private async Task EnsureConnectionOf(SmtpClient smtp, IMailClientConfiguration configuration)
+        {
+            if (!smtp.IsConnected)
+            {
+                await smtp.ConnectAsync(configuration.Host, configuration.SmtpPort, SocketOptions);
+            }
+
+            if (!smtp.IsAuthenticated)
+            {
+                await smtp.AuthenticateAsync(configuration.UserName, configuration.Password);
             }
         }
 

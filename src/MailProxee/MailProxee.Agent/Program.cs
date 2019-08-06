@@ -35,9 +35,10 @@ namespace MailProxee.Agent
 
                 using (var handler = new MailboxHandler(configuration.Mailbox, configuration.Database))
                 {
+                    Console.WriteLine("Press [Enter] to exit...");
+
                     var messageHandler = handler.HandleMessages(_tokenSource.Token);
 
-                    Console.WriteLine("Press [Enter] to exit...");
                     Console.ReadLine();
 
                     Console.WriteLine("Stopping...");
