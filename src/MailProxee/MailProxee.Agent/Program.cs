@@ -3,10 +3,13 @@ using MailKit;
 using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using MimeKit;
-using Module.EmailProxy.Application;
-using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,49 +18,34 @@ namespace MailProxee.Agent
 {
     class Program
     {
-        private static readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
-
         static async Task Main(string[] args)
         {
-            var result = Parser.Default.ParseArguments<Options>(args);
-
-            if (result is Parsed<Options> options)
-            {
-                await Run(options.Value);
-            }
-        }
-
-        private static async Task Run(Options options)
-        {
-            try
-            {
-                var configuration = await Configuration.LoadFrom(options.Configuration);
-
-                using (var handler = new MailboxHandler(configuration.Mailbox, configuration.Database))
+            var host = new HostBuilder()
+                .ConfigureHostConfiguration(builder =>
                 {
-                    Console.WriteLine("Press [Enter] to exit...");
+                    builder.SetBasePath(Directory.GetCurrentDirectory());
+                    builder.AddJsonFile("hostsettings.json", optional: true);
+                    builder.AddEnvironmentVariables(prefix: "MPX_");
+                    builder.AddCommandLine(args);
+                })
+                .ConfigureAppConfiguration((hostContext, builder) =>
+                {
+                    builder.SetBasePath(Directory.GetCurrentDirectory());
+                    builder.AddJsonFile("appsettings.json", optional: true);
+                    builder.AddJsonFile(
+                        $"appsettings.{hostContext.HostingEnvironment.EnvironmentName}.json",
+                        optional: true);
+                    builder.AddEnvironmentVariables(prefix: "MPX_");
+                    builder.AddCommandLine(args);
+                })
+                .ConfigureLogging(configLog => 
+                    configLog.AddConsole())
+                .ConfigureServices(services => 
+                    services.AddHostedService<MailManagementService>())
+                .UseConsoleLifetime()
+                .Build();
 
-                    var messageHandler = handler.HandleMessages(_tokenSource.Token);
-
-                    Console.ReadLine();
-
-                    Console.WriteLine("Stopping...");
-                    _tokenSource.Cancel();
-
-                    await messageHandler;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"ERROR: {ex.Message}");
-                Console.WriteLine(ex);
-            }
+            await host.RunAsync();
         }
-    }
-
-    public class Options
-    {
-        [Option('c', "config", Required = true)]
-        public string Configuration { get; set; }
     }
 }
