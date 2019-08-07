@@ -11,6 +11,7 @@ namespace Module.EmailProxy.Infrastructure.Base
         string IncomingDomain { get; }
 
         string ReplyDomain { get; }
+
         string Domain { get; }
     }
 }
