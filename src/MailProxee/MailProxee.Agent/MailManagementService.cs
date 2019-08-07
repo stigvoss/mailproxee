@@ -21,7 +21,7 @@ namespace MailProxee.Agent
             var appSettings = new AppSettings();
             configuration.Bind(appSettings);
 
-            _handler = new MailboxHandler(appSettings.Mailbox, appSettings.Database, logger);
+            _handler = new MailboxHandler(appSettings.Mailbox, appSettings.ConnectionStrings, logger);
         }
 
         public IConfiguration Configuration { get; }

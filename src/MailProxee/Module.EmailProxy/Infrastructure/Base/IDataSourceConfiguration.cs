@@ -4,16 +4,8 @@ using System.Text;
 
 namespace Module.EmailProxy.Infrastructure.Base
 {
-    public interface IDataSourceConfiguration
+    public interface IConnectionStrings
     {
-        string Host { get; }
-
-        ushort Port { get; }
-
-        string UserName { get; }
-
-        string Password { get; }
-
-        string DataSource { get; }
+        string Default { get; }
     }
 }

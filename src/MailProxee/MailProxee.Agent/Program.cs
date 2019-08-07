@@ -38,9 +38,18 @@ namespace MailProxee.Agent
                     builder.AddEnvironmentVariables(prefix: "MPX_");
                     builder.AddCommandLine(args);
                 })
-                .ConfigureLogging(configLog => 
-                    configLog.AddConsole())
-                .ConfigureServices(services => 
+                .ConfigureLogging((hostContext, configLog) =>
+                {
+                    var section = hostContext.Configuration.GetSection("Logging");
+                    configLog.AddConfiguration(section);
+
+                    if(hostContext.HostingEnvironment.IsDevelopment())
+                    {
+                        configLog.AddDebug();
+                    }
+                    configLog.AddConsole();
+                })
+                .ConfigureServices(services =>
                     services.AddHostedService<MailManagementService>())
                 .UseConsoleLifetime()
                 .Build();

@@ -2,6 +2,7 @@
 using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.Extensions.Logging;
 using MimeKit;
 using Module.EmailProxy.Domain;
 using Module.EmailProxy.Infrastructure.Base;
@@ -22,22 +23,19 @@ namespace Module.EmailProxy.Infrastructure
         private readonly IMailClientConfiguration _configuration;
         private readonly ImapClient _imap;
         private readonly SmtpClient _smtp;
+        private readonly ILogger _logger;
 
-        public MailClient(IMailClientConfiguration configuration)
+        public MailClient(IMailClientConfiguration configuration, ILogger logger = null)
         {
             _configuration = configuration;
 
             _imap = new ImapClient();
             _smtp = new SmtpClient();
 
+            _logger = logger;
+
             _imap.ServerCertificateValidationCallback += UnconditionalCertificateAcceptance;
             _smtp.ServerCertificateValidationCallback += UnconditionalCertificateAcceptance;
-        }
-
-        public async Task PrepareMailboxConnection()
-        {
-            await EnsureConnectionOf(_imap, _configuration);
-            await EnsureConnectionOf(_smtp, _configuration);
         }
 
         internal async Task Send(Message message)
@@ -91,16 +89,19 @@ namespace Module.EmailProxy.Infrastructure
         {
             if (!imap.IsConnected)
             {
+                _logger?.LogDebug($"Connecting {nameof(ImapClient)}.");
                 await imap.ConnectAsync(configuration.Host, configuration.ImapPort, SocketOptions);
             }
 
             if (!imap.IsAuthenticated)
             {
+                _logger?.LogDebug($"Authenticating {nameof(ImapClient)}.");
                 await imap.AuthenticateAsync(configuration.UserName, configuration.Password);
             }
 
             if (!imap.Inbox.IsOpen)
             {
+                _logger?.LogDebug($"Opening Inbox of {nameof(ImapClient)}.");
                 await imap.Inbox.OpenAsync(FolderAccess.ReadWrite);
             }
         }
@@ -109,11 +110,13 @@ namespace Module.EmailProxy.Infrastructure
         {
             if (!smtp.IsConnected)
             {
+                _logger?.LogDebug($"Connecting {nameof(SmtpClient)}.");
                 await smtp.ConnectAsync(configuration.Host, configuration.SmtpPort, SocketOptions);
             }
 
             if (!smtp.IsAuthenticated)
             {
+                _logger?.LogDebug($"Authenticating {nameof(SmtpClient)}.");
                 await smtp.AuthenticateAsync(configuration.UserName, configuration.Password);
             }
         }
@@ -137,6 +140,7 @@ namespace Module.EmailProxy.Infrastructure
         {
             if (_smtp.IsConnected)
             {
+                _logger?.LogDebug($"Disconnecting {nameof(SmtpClient)}.");
                 await _smtp.DisconnectAsync(true);
             }
         }

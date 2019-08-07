@@ -32,20 +32,12 @@ namespace Module.EmailProxy.Application
 
         public MailboxHandler(
             IMailboxHandlerConfiguration mailboxHandler, 
-            IDataSourceConfiguration dataSource, 
-            ILogger<MailboxHandler> logger)
+            IConnectionStrings connectionStrings, 
+            ILogger<MailboxHandler> logger = null)
         {
-            var builder = new MySqlConnectionStringBuilder
-            {
-                Server = dataSource.Host,
-                Port = dataSource.Port,
-                UserID = dataSource.UserName,
-                Password = dataSource.Password,
-                Database = dataSource.DataSource
-            };
-            var connection = new MySqlConnection(builder.ConnectionString);
+            var connection = new MySqlConnection(connectionStrings.Default);
 
-            _client = new MailClient(mailboxHandler);
+            _client = new MailClient(mailboxHandler, logger);
             _categorizer = new MessageCategorizer(mailboxHandler);
             var aliases = new AliasRepository(connection);
             _mailman = new MailmanService(_client, aliases, mailboxHandler);
@@ -54,30 +46,25 @@ namespace Module.EmailProxy.Application
 
         public async Task HandleMessages(CancellationToken token)
         {
-            _logger.LogDebug("Connecting... ");
-            await _client.PrepareMailboxConnection();
-            _logger.LogDebug("Done.");
-            _logger.LogInformation("Connected to server.");
-
             await Task.Run(async () =>
             {
                 while (!token.IsCancellationRequested)
                 {
-                    _logger.LogDebug("Fetching... ");
+                    _logger?.LogDebug("Fetching... ");
                     var messages = await _client.FetchMessages();
-                    _logger.LogInformation($"Fetched {messages.Count()} messages.");
+                    _logger?.LogInformation($"Fetched {messages.Count()} messages.");
 
                     try
                     {
                         foreach (var message in messages)
                         {
-                            _logger.LogDebug("Categorizing message... ");
+                            _logger?.LogDebug("Categorizing message... ");
                             try
                             {
                                 var category = _categorizer.Categorize(message);
-                                _logger.LogInformation($"Categorized message as {category.ToString()}.");
+                                _logger?.LogInformation($"Categorized message as {category.ToString()}.");
 
-                                _logger.LogDebug("Processing message... ");
+                                _logger?.LogDebug("Processing message... ");
                                 switch (category)
                                 {
                                     case MessageCategory.Request:
@@ -89,16 +76,15 @@ namespace Module.EmailProxy.Application
                                             .ConfigureAwait(false);
                                         break;
                                 }
-                                _logger.LogDebug("Done.");
+                                _logger?.LogDebug("Done.");
 
-                                _logger.LogDebug("Mark for deletion... ");
+                                _logger?.LogDebug("Mark for deletion... ");
                                 await _client.PermitDeletion(message);
-                                _logger.LogDebug("Done.");
-                                _logger.LogInformation("Marked message for deletion.");
+                                _logger?.LogInformation("Marked for deletion.");
                             }
                             catch (Exception ex)
                             {
-                                _logger.LogError(ex, ex.Message);
+                                _logger?.LogError(ex, ex.Message);
                             }
                         }
                     }
@@ -107,17 +93,16 @@ namespace Module.EmailProxy.Application
                         await _client.DisconnectSmtp();
                     }
 
-                    _logger.LogDebug("Deleting messages... ");
+                    _logger?.LogDebug("Deleting messages... ");
                     await _client.DeleteMessages()
                         .ConfigureAwait(false);
-                    _logger.LogDebug("Done.");
-                    _logger.LogInformation("Deleted messages.");
+                    _logger?.LogInformation("Deleted messages.");
 
                     try
                     {
-                        _logger.LogDebug("Entering sleep... ");
+                        _logger?.LogDebug("Entering sleep... ");
                         await Task.Delay(10000, token);
-                        _logger.LogDebug("Continuing.");
+                        _logger?.LogDebug("Continuing.");
                     }
                     catch (TaskCanceledException)
                     {
