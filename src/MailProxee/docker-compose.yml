@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  mailproxee.agent:
+    image: ${DOCKER_REGISTRY-}mailproxeeagent
+    build:
+      context: .
+      dockerfile: MailProxee.Agent/Dockerfile

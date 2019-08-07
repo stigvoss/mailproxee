@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Module.EmailProxy", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{10D26AC3-9E42-43D9-B706-C5DFB0D232A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailProxee.WebClient", "MailProxee.WebClient\MailProxee.WebClient.csproj", "{F6EEFC20-ACF6-4B3D-BAB7-F2EE4F3CCD7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailProxee.WebClient", "MailProxee.WebClient\MailProxee.WebClient.csproj", "{F6EEFC20-ACF6-4B3D-BAB7-F2EE4F3CCD7D}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{8F816B68-4183-46E2-B9AF-9655F40CB3A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,10 @@ Global
 		{F6EEFC20-ACF6-4B3D-BAB7-F2EE4F3CCD7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6EEFC20-ACF6-4B3D-BAB7-F2EE4F3CCD7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6EEFC20-ACF6-4B3D-BAB7-F2EE4F3CCD7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F816B68-4183-46E2-B9AF-9655F40CB3A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F816B68-4183-46E2-B9AF-9655F40CB3A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F816B68-4183-46E2-B9AF-9655F40CB3A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F816B68-4183-46E2-B9AF-9655F40CB3A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
