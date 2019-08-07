@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Module.EmailProxy.Application;
 using System;
 using System.Threading;
@@ -15,12 +16,12 @@ namespace MailProxee.Agent
         private readonly MailboxHandler _handler;
         private Task _messageHandler;
 
-        public MailManagementService(IConfiguration configuration)
+        public MailManagementService(IConfiguration configuration, ILogger<MailboxHandler> logger)
         {
             var appSettings = new AppSettings();
             configuration.Bind(appSettings);
 
-            _handler = new MailboxHandler(appSettings.Mailbox, appSettings.Database);
+            _handler = new MailboxHandler(appSettings.Mailbox, appSettings.Database, logger);
         }
 
         public IConfiguration Configuration { get; }
@@ -42,6 +43,7 @@ namespace MailProxee.Agent
         public void Dispose()
         {
             _handler.Dispose();
+            _tokenSource.Dispose();
         }
     }
 }
