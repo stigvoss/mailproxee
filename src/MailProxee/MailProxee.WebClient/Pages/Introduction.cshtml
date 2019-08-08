@@ -1,10 +1,28 @@
 ﻿@page "/"
+@inject AppConfiguration Configuration
 @model IndexModel
 @{
     ViewData["Title"] = "Introduction";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+    <div class="text-center">
+        <h1 class="display-4">What is @Configuration.AppName?</h1>
+        <p>
+            @Configuration.AppName is a service to help you achieve privacy from tracking companies
+            (such as Google and Facebook), and prevent spam in case of leaks. Create an alias for your
+            actual e-mail and @Configuration.AppName will forward all e-mail to you until this service
+            ceases to exist or you choose to delete the alias. @Configuration.AppName ensures that your
+            random generated and unique alias will never be assigned to someone else. A deleted alias is
+            forever lost and @Configuration.AppName will not keep records of your deleted alias. You can
+            generate a new alias for every purpose and you will never have to give two places the same
+            e-mail address.
+        </p>
+        <h1 class="display-4">What is @Configuration.AppName not?</h1>
+        <p>
+            @Configuration.AppName is not meant to bring you absolute anonymity. @Configuration.AppName 
+            will have a database mapping your alias to your receiving e-mail address. In case of a hack, 
+            your e-mail may be leaked and upon a government request, your e-mail address used in current 
+            active aliases will be handed over to authorities. @Configuration.AppName is not a service 
+            for your criminal activities.
+        </p>
+    </div>
