@@ -67,10 +67,6 @@ namespace Module.EmailProxy.Application
                                 _logger?.LogDebug("Processing message... ");
                                 switch (category)
                                 {
-                                    case MessageCategory.Request:
-                                        await _mailman.SendNewAlias(message)
-                                            .ConfigureAwait(false);
-                                        break;
                                     case MessageCategory.Incoming:
                                         await _mailman.ForwardEmail(message)
                                             .ConfigureAwait(false);
