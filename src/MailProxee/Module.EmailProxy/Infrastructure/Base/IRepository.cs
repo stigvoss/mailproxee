@@ -1,6 +1,7 @@
 ﻿using Module.EmailProxy.Domain.Base;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,7 +10,7 @@ namespace Module.EmailProxy.Infrastructure.Base
     public interface IRepository<T>
         where T : IAggregateRoot
     {
-        Task<IEnumerable<T>> All();
+        Task<IQueryable<T>> All();
 
         Task<T> Find(Guid id);
 

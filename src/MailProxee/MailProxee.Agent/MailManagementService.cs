@@ -1,8 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Module.EmailProxy.Application;
+using Module.EmailProxy.Infrastructure.EntityFrameworkCore;
+using Module.EmailProxy.Infrastructure.EntityFrameworkCore.Repositories;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,12 +19,14 @@ namespace MailProxee.Agent
         private readonly MailboxHandler _handler;
         private Task _messageHandler;
 
-        public MailManagementService(IConfiguration configuration, ILogger<MailboxHandler> logger)
+        public MailManagementService(IConfiguration configuration, AliasContext context, ILogger<MailboxHandler> logger)
         {
             var appSettings = new AppSettings();
             configuration.Bind(appSettings);
 
-            _handler = new MailboxHandler(appSettings.Mailbox, appSettings.ConnectionStrings, logger);
+            var aliases = new AliasRepository(context);
+
+            _handler = new MailboxHandler(appSettings.Mailbox, aliases, logger);
         }
 
         public IConfiguration Configuration { get; }

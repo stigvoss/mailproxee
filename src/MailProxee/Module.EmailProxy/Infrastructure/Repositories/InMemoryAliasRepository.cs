@@ -25,11 +25,11 @@ namespace Module.EmailProxy.Domain.Repositories
             return null;
         }
 
-        public async Task<IEnumerable<Alias>> All()
+        public async Task<IQueryable<Alias>> All()
         {
             await Task.Delay(200);
 
-            return _aliases;
+            return _aliases.AsQueryable();
         }
 
         public async Task<Alias> Find(Guid id)

@@ -10,8 +10,6 @@ using Module.EmailProxy.Domain.Repositories;
 using Module.EmailProxy.Domain.Services;
 using Module.EmailProxy.Infrastructure;
 using Module.EmailProxy.Infrastructure.Base;
-using Module.EmailProxy.Infrastructure.Repositories;
-using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -32,14 +30,11 @@ namespace Module.EmailProxy.Application
 
         public MailboxHandler(
             IMailboxHandlerConfiguration mailboxHandler, 
-            IConnectionStrings connectionStrings, 
+            IAliasRepository aliases, 
             ILogger<MailboxHandler> logger = null)
         {
-            var connection = new MySqlConnection(connectionStrings.Default);
-
             _client = new MailClient(mailboxHandler, logger);
             _categorizer = new MessageCategorizer(mailboxHandler);
-            var aliases = new AliasRepository(connection);
             _mailman = new MailmanService(_client, aliases, mailboxHandler);
             _logger = logger;
         }
