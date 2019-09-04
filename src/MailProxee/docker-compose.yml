@@ -13,8 +13,6 @@ services:
 
   client:
     image: mailproxee-client
-    ports:
-     - 5000:5000
     build:
       context: .
       dockerfile: MailProxee.WebClient/Dockerfile
