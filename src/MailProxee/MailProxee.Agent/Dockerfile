@@ -4,6 +4,7 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
 WORKDIR /src
 COPY ["MailProxee.Agent/MailProxee.Agent.csproj", "MailProxee.Agent/"]
+COPY ["Module.EmailProxy.Infrastructure.EntityFrameworkCore/Module.EmailProxy.Infrastructure.EntityFrameworkCore.csproj", "../Module.EmailProxy.Infrastructure.EntityFrameworkCore/"]
 COPY ["Module.EmailProxy/Module.EmailProxy.csproj", "Module.EmailProxy/"]
 RUN dotnet restore "MailProxee.Agent/MailProxee.Agent.csproj"
 COPY . .

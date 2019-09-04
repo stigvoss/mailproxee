@@ -14,6 +14,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\Module.EmailProxy.Infrastructure.EntityFrameworkCore\Module.EmailProxy.Infrastructure.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\Module.EmailProxy\Module.EmailProxy.csproj" />
   </ItemGroup>
 

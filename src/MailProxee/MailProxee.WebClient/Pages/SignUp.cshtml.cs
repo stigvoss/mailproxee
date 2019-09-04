@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Module.EmailProxy.Domain;
 using Module.EmailProxy.Infrastructure.Base;
-using Module.EmailProxy.Infrastructure.Repositories;
 
 namespace MailProxee.WebClient.Pages
 {

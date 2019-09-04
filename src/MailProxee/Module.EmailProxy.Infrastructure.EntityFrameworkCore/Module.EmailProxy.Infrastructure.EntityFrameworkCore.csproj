@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MailProxee\Module.EmailProxy\Module.EmailProxy.csproj" />
+    <ProjectReference Include="..\Module.EmailProxy\Module.EmailProxy.csproj" />
   </ItemGroup>
 
   <ItemGroup>

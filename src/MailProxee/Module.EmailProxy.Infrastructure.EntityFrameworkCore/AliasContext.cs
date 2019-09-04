@@ -14,6 +14,11 @@ namespace Module.EmailProxy.Infrastructure.EntityFrameworkCore
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+
+        }
+
         public DbSet<Alias> Aliases { get; set; }
     }
 }
