@@ -1,8 +1,52 @@
 version: '3.4'
 
 services:
-  mailproxee.agent:
-    image: ${DOCKER_REGISTRY-}mailproxeeagent
+  agent:
+    image: mailproxee-agent
     build:
       context: .
       dockerfile: MailProxee.Agent/Dockerfile
+    depends_on:
+     - db
+    networks:
+     - backend
+
+  client:
+    image: mailproxee-client
+    ports:
+     - 5000:5000
+    build:
+      context: .
+      dockerfile: MailProxee.WebClient/Dockerfile
+    depends_on:
+     - db
+    networks:
+     - proxy
+     - backend
+
+  db:
+    image: postgres:latest
+    environment:
+     - POSTGRES_DB=mailproxee
+     - POSTGRES_PASSWORD=
+    volumes:
+     - mailproxee-db:/var/lib/postgresql/data
+    networks:
+     - backend
+
+  proxy:
+    image: jwilder/nginx-proxy
+    ports:
+     - 80:80
+     - 443:443
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+     - proxy
+
+networks:
+  proxy:
+  backend:
+
+volumes:
+  db-data:
