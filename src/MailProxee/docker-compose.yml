@@ -4,7 +4,15 @@ services:
   agent:
     image: mailproxee-agent
     environment:
-     - "ConnectionStrings:Default"="Server=db;Database=mailproxee;User Id=mailproxee;Password=test_password;"
+     - Database:ConnectionString=Server=db;Database=mailproxee;User Id=mailproxee;Password=;
+     - Mailbox:Domain=mailprivac.ee
+     - Mailbox:IncomingPrefix=m
+     - Mailbox:ReplyPrefix=reply
+     - Mailbox:Host=localhost
+     - Mailbox:ImapPort=993
+     - Mailbox:SmtpPort=587
+     - Mailbox:UserName=
+     - Mailbox:Password=
     build:
       context: .
       dockerfile: MailProxee.Agent/Dockerfile
@@ -15,6 +23,8 @@ services:
 
   client:
     image: mailproxee-client
+    environment:
+     - VIRTUAL_HOST=mailprivac.ee
     build:
       context: .
       dockerfile: MailProxee.WebClient/Dockerfile
@@ -28,7 +38,7 @@ services:
     image: postgres:latest
     environment:
      - POSTGRES_DB=mailproxee
-     - POSTGRES_PASSWORD=test_password
+     - POSTGRES_PASSWORD=
     volumes:
      - mailproxee-db:/var/lib/postgresql/data
     networks:

@@ -59,7 +59,7 @@ namespace MailProxee.Agent
             context.Configuration.Bind(appSettings);
 
             services.AddDbContext<AliasContext>(options =>
-                options.UseNpgsql(appSettings.ConnectionStrings.Default));
+                options.UseNpgsql(appSettings.Database.ConnectionString));
 
             services.AddHostedService<MailManagementService>();
         }

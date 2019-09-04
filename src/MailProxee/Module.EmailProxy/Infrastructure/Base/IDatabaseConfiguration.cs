@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Module.EmailProxy.Infrastructure.Base
 {
-    public interface IConnectionStrings
+    public interface IDatabaseConfiguration
     {
-        string Default { get; }
+        string ConnectionString { get; }
     }
 }

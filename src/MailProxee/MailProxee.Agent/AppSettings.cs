@@ -10,7 +10,7 @@ namespace MailProxee.Agent
     {
         public MailboxConfiguration Mailbox { get; set; } = new MailboxConfiguration();
 
-        public ConnectionStrings ConnectionStrings { get; set; } = new ConnectionStrings();
+        public DatabaseConfiguration Database { get; set; } = new DatabaseConfiguration();
 
         public static async Task<AppSettings> LoadFrom(string path)
         {
@@ -49,8 +49,8 @@ namespace MailProxee.Agent
         public string Password { get; set; }
     }
 
-    public class ConnectionStrings : IConnectionStrings
+    public class DatabaseConfiguration : IDatabaseConfiguration
     {
-        public string Default { get; set; }
+        public string ConnectionString { get; set; }
     }
 }
