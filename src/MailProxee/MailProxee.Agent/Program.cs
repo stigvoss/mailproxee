@@ -38,7 +38,7 @@ namespace MailProxee.Agent
         {
             builder.SetBasePath(Directory.GetCurrentDirectory());
             builder.AddJsonFile("hostsettings.json", optional: true);
-            builder.AddEnvironmentVariables(prefix: "MPX_");
+            builder.AddEnvironmentVariables(prefix: "");
             builder.AddCommandLine(args);
         }
 
@@ -49,7 +49,7 @@ namespace MailProxee.Agent
             builder.AddJsonFile(
                 $"appsettings.{context.HostingEnvironment.EnvironmentName}.json",
                 optional: true);
-            builder.AddEnvironmentVariables(prefix: "MPX_");
+            builder.AddEnvironmentVariables(prefix: "");
             builder.AddCommandLine(args);
         }
 

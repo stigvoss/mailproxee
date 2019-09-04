@@ -3,6 +3,8 @@ version: '3.4'
 services:
   agent:
     image: mailproxee-agent
+    environment:
+     - "ConnectionStrings:Default"="Server=db;Database=mailproxee;User Id=mailproxee;Password=test_password;"
     build:
       context: .
       dockerfile: MailProxee.Agent/Dockerfile
@@ -26,7 +28,7 @@ services:
     image: postgres:latest
     environment:
      - POSTGRES_DB=mailproxee
-     - POSTGRES_PASSWORD=
+     - POSTGRES_PASSWORD=test_password
     volumes:
      - mailproxee-db:/var/lib/postgresql/data
     networks:
