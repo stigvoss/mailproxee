@@ -4,27 +4,28 @@ services:
   agent:
     image: mailproxee-agent
     environment:
-     - Database:ConnectionString=Server=db;Database=mailproxee;User Id=mailproxee;Password=;
-     - Mailbox:Domain=mailprivac.ee
-     - Mailbox:IncomingPrefix=m
-     - Mailbox:ReplyPrefix=reply
-     - Mailbox:Host=localhost
-     - Mailbox:ImapPort=993
+     - Database:ConnectionString=Server=db;Database=${DB_NAME};User Id=${DB_NAME};Password=${DB_PASSWORD};
+     - Mailbox:Domain=${DOMAIN}
+     - Mailbox:IncomingPrefix=${INCOMING_PREFIX}
+     - Mailbox:ReplyPrefix=${REPLY_PREFIX}
+     - Mailbox:Host=mail
+     - Mailbox:ImapPort=143
      - Mailbox:SmtpPort=587
-     - Mailbox:UserName=
-     - Mailbox:Password=
+     - Mailbox:UserName=${MAILBOX_USER}
+     - Mailbox:Password=${MAILBOX_PASSWORD}
     build:
       context: .
       dockerfile: MailProxee.Agent/Dockerfile
     depends_on:
      - db
+     - mail
     networks:
      - backend
 
   client:
     image: mailproxee-client
     environment:
-     - VIRTUAL_HOST=mailprivac.ee
+     - VIRTUAL_HOST=${DOMAIN}
     build:
       context: .
       dockerfile: MailProxee.WebClient/Dockerfile
@@ -37,18 +38,44 @@ services:
   db:
     image: postgres:latest
     environment:
-     - POSTGRES_DB=mailproxee
-     - POSTGRES_PASSWORD=
+     - POSTGRES_DB=${DB_NAME}
+     - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
      - mailproxee-db:/var/lib/postgresql/data
+    networks:
+     - backend
+
+  mail:
+    image: tvial/docker-mailserver:latest
+    hostname: ${HOSTNAME}
+    domainname: ${DOMAIN}
+    container_name: mail
+    ports:
+      - "25:25"
+      - "143:143"
+      - "587:587"
+    volumes:
+      - maildata:/var/mail
+      - mailstate:/var/mail-state
+      - ./config/:/tmp/docker-mailserver/
+    environment:
+      - ENABLE_SPAMASSASSIN=1
+      - ENABLE_CLAMAV=1
+      - ENABLE_FAIL2BAN=1
+      - ENABLE_POSTGREY=1
+      - ONE_DIR=0
+      - DMS_DEBUG=0
+    cap_add:
+      - NET_ADMIN
+      - SYS_PTRACE
     networks:
      - backend
 
   proxy:
     image: jwilder/nginx-proxy
     ports:
-     - 80:80
-     - 443:443
+     - "80:80"
+     - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
@@ -60,3 +87,7 @@ networks:
 
 volumes:
   mailproxee-db:
+  maildata:
+    driver: local
+  mailstate:
+    driver: local
