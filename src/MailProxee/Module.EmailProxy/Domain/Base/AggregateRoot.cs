@@ -16,11 +16,11 @@ namespace Module.EmailProxy.Domain.Base
             Id = id;
         }
 
-        public Guid Id { get; }
+        public Guid Id { get; set; }
 
         public bool Equals(IAggregateRoot other)
         {
-            return Id == other?.Id;
+            return Id.Equals(other?.Id);
         }
     }
 }
