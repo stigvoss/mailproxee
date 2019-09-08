@@ -7,6 +7,9 @@ namespace Module.EmailProxy.Domain
 {
     public class Alias : AggregateRoot
     {
+        public Alias()
+        { }
+
         public Alias(Guid aliasId, string recipient)
             : base(aliasId)
         {
@@ -23,6 +26,6 @@ namespace Module.EmailProxy.Domain
             Recipient = recipient;
         }
 
-        public string Recipient { get; }
+        public string Recipient { get; set; }
     }
 }
