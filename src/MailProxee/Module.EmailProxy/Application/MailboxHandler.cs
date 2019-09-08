@@ -29,8 +29,8 @@ namespace Module.EmailProxy.Application
         private readonly ILogger _logger;
 
         public MailboxHandler(
-            IMailboxHandlerConfiguration mailboxHandler, 
-            IAliasRepository aliases, 
+            IMailboxHandlerConfiguration mailboxHandler,
+            IAliasRepository aliases,
             ILogger<MailboxHandler> logger = null)
         {
             _client = new MailClient(mailboxHandler, logger);
@@ -45,49 +45,57 @@ namespace Module.EmailProxy.Application
             {
                 while (!token.IsCancellationRequested)
                 {
-                    _logger?.LogDebug("Fetching... ");
-                    var messages = await _client.FetchMessages();
-                    _logger?.LogInformation($"Fetched {messages.Count()} messages.");
-
                     try
                     {
-                        foreach (var message in messages)
+
+                        _logger?.LogDebug("Fetching... ");
+                        var messages = await _client.FetchMessages();
+                        _logger?.LogInformation($"Fetched {messages.Count()} messages.");
+
+                        try
                         {
-                            _logger?.LogDebug("Categorizing message... ");
-                            try
+                            foreach (var message in messages)
                             {
-                                var category = _categorizer.Categorize(message);
-                                _logger?.LogInformation($"Categorized message as {category.ToString()}.");
-
-                                _logger?.LogDebug("Processing message... ");
-                                switch (category)
+                                _logger?.LogDebug("Categorizing message... ");
+                                try
                                 {
-                                    case MessageCategory.Incoming:
-                                        await _mailman.ForwardEmail(message)
-                                            .ConfigureAwait(false);
-                                        break;
-                                }
-                                _logger?.LogDebug("Done.");
+                                    var category = _categorizer.Categorize(message);
+                                    _logger?.LogInformation($"Categorized message as {category.ToString()}.");
 
-                                _logger?.LogDebug("Mark for deletion... ");
-                                await _client.PermitDeletion(message);
-                                _logger?.LogInformation("Marked for deletion.");
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger?.LogError(ex, ex.Message);
+                                    _logger?.LogDebug("Processing message... ");
+                                    switch (category)
+                                    {
+                                        case MessageCategory.Incoming:
+                                            await _mailman.ForwardEmail(message)
+                                                .ConfigureAwait(false);
+                                            break;
+                                    }
+                                    _logger?.LogDebug("Done.");
+
+                                    _logger?.LogDebug("Mark for deletion... ");
+                                    await _client.PermitDeletion(message);
+                                    _logger?.LogInformation("Marked for deletion.");
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger?.LogError(ex, ex.Message);
+                                }
                             }
                         }
-                    }
-                    finally
-                    {
-                        await _client.DisconnectSmtp();
-                    }
+                        finally
+                        {
+                            await _client.DisconnectSmtp();
+                        }
 
-                    _logger?.LogDebug("Deleting messages... ");
-                    await _client.DeleteMessages()
-                        .ConfigureAwait(false);
-                    _logger?.LogInformation("Deleted messages.");
+                        _logger?.LogDebug("Deleting messages... ");
+                        await _client.DeleteMessages()
+                            .ConfigureAwait(false);
+                        _logger?.LogInformation("Deleted messages.");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger?.LogError(ex, ex.Message);
+                    }
 
                     try
                     {

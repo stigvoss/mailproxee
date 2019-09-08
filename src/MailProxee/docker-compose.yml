@@ -13,6 +13,7 @@ services:
      - Mailbox:SmtpPort=587
      - Mailbox:UserName=${MAILBOX_USER}
      - Mailbox:Password=${MAILBOX_PASSWORD}
+     - Logging:LogLevel:Default=Debug
     build:
       context: .
       dockerfile: MailProxee.Agent/Dockerfile
