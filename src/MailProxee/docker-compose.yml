@@ -53,8 +53,6 @@ services:
     container_name: mail
     ports:
       - "25:25"
-      - "143:143"
-      - "587:587"
     volumes:
       - maildata:/var/mail
       - mailstate:/var/mail-state
