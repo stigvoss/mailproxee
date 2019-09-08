@@ -10,6 +10,9 @@ namespace Module.EmailProxy.Infrastructure.EntityFrameworkCore
 {
     public class AliasContext : DbContext
     {
+        public AliasContext()
+        { }
+
         public AliasContext(DbContextOptions options)
             : base(options)
         {

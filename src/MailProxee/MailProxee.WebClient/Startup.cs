@@ -7,10 +7,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Module.EmailProxy.Domain.Repositories;
 using Module.EmailProxy.Infrastructure.Base;
+using Module.EmailProxy.Infrastructure.EntityFrameworkCore;
+using Module.EmailProxy.Infrastructure.EntityFrameworkCore.Repositories;
 
 namespace MailProxee.WebClient
 {
@@ -33,9 +36,11 @@ namespace MailProxee.WebClient
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            var connectionString = Configuration.GetConnectionString("Database");
             services.AddScoped(_ => Configuration.GetSection("App").Get<AppConfiguration>());
 
-            services.AddSingleton<IAliasRepository>(_ => new InMemoryAliasRepository());
+            services.AddDbContext<AliasContext>(options => options.UseNpgsql(connectionString));
+            services.AddTransient<IAliasRepository, AliasRepository>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

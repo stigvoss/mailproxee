@@ -19,11 +19,6 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Module.EmailProxy.Infrastructure.EntityFrameworkCore", "Module.EmailProxy.Infrastructure.EntityFrameworkCore\Module.EmailProxy.Infrastructure.EntityFrameworkCore.csproj", "{10F12C54-A56F-4BCD-9DE6-F9DD5D1A4DE4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{82064359-444B-4093-B740-70AC4192E8A5}"
-	ProjectSection(SolutionItems) = preProject
-		.env = .env
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
