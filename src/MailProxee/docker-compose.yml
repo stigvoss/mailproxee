@@ -40,6 +40,7 @@ services:
     image: postgres:latest
     environment:
      - POSTGRES_DB=${DB_NAME}
+     - POSTGRES_USER=${DB_NAME}
      - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
      - dbdata:/var/lib/postgresql/data
@@ -61,7 +62,7 @@ services:
       - ENABLE_SPAMASSASSIN=1
       - ENABLE_CLAMAV=1
       - ENABLE_FAIL2BAN=1
-      - ENABLE_POSTGREY=1
+      - ENABLE_POSTGREY=0
       - ONE_DIR=0
       - DMS_DEBUG=0
     cap_add:
