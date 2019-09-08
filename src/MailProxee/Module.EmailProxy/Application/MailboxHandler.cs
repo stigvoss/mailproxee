@@ -47,7 +47,6 @@ namespace Module.EmailProxy.Application
                 {
                     try
                     {
-
                         _logger?.LogDebug("Fetching... ");
                         var messages = await _client.FetchMessages();
                         _logger?.LogInformation($"Fetched {messages.Count()} messages.");

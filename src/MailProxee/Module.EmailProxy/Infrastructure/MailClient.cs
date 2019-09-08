@@ -89,7 +89,7 @@ namespace Module.EmailProxy.Infrastructure
         {
             if (!imap.IsConnected)
             {
-                _logger?.LogDebug($"Connecting {nameof(ImapClient)}.");
+                _logger?.LogDebug($"Connecting {nameof(ImapClient)} to {configuration.Host}.");
                 await imap.ConnectAsync(configuration.Host, configuration.ImapPort, SocketOptions);
             }
 
