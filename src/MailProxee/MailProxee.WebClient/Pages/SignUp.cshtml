@@ -9,4 +9,11 @@
 <form method="post">
     <input type="text" name="recipient" />
     <button type="submit">Submit</button>
+
+    @if (Model.AssignedAlias is object)
+    {
+        <p>
+            @Model.AssignedAlias.Id.ToString()
+        </p>
+    }
 </form>

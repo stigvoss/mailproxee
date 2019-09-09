@@ -22,6 +22,9 @@ namespace MailProxee.WebClient.Pages
         [BindProperty]
         public string Recipient { get; set; }
 
+        [BindProperty]
+        public Alias AssignedAlias { get; set; }
+
         public void OnGet()
         {
 
@@ -30,7 +33,7 @@ namespace MailProxee.WebClient.Pages
         public async Task OnPost()
         {
             var alias = new Alias(Recipient);
-            await _repository.Add(alias);
+            AssignedAlias = await _repository.Add(alias);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace MailProxee.WebClient
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            var connectionString = Configuration.GetConnectionString("Database");
+            var connectionString = Configuration.GetValue<string>("Database:ConnectionString");
             services.AddScoped(_ => Configuration.GetSection("App").Get<AppConfiguration>());
 
             services.AddDbContext<AliasContext>(options => options.UseNpgsql(connectionString));

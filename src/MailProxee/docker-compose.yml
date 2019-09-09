@@ -14,6 +14,8 @@ services:
      - Mailbox:UserName=${MAILBOX_USER}
      - Mailbox:Password=${MAILBOX_PASSWORD}
      - Logging:LogLevel:Default=Debug
+     - Logging:LogLevel:System=Information
+     - Logging:LogLevel:Microsoft=Information
     build:
       context: .
       dockerfile: MailProxee.Agent/Dockerfile
@@ -27,6 +29,10 @@ services:
     image: mailproxee-client
     environment:
      - VIRTUAL_HOST=${DOMAIN}
+     - Database:ConnectionString=Server=db;Database=${DB_NAME};User Id=${DB_NAME};Password=${DB_PASSWORD};
+     - Logging:LogLevel:Debug=Debug
+     - Logging:LogLevel:System=Information
+     - Logging:LogLevel:Microsoft=Information
     build:
       context: .
       dockerfile: MailProxee.WebClient/Dockerfile
