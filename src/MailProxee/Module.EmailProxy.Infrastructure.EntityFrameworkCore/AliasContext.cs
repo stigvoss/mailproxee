@@ -28,6 +28,9 @@ namespace Module.EmailProxy.Infrastructure.EntityFrameworkCore
             modelBuilder.Entity<Alias>()
                 .Property(e => e.Recipient)
                 .IsRequired();
+
+            modelBuilder.Entity<Alias>()
+                .OwnsOne(e => e.ActivationCriteria);
         }
 
         public DbSet<Alias> Aliases { get; set; }
