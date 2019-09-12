@@ -25,7 +25,7 @@ namespace Module.EmailProxy.Application
     {
         private readonly MailClient _client;
         private readonly MessageCategorizer _categorizer;
-        private readonly MailmanService _mailman;
+        private readonly Mailman _mailman;
         private readonly ILogger _logger;
 
         public MailboxHandler(
@@ -35,7 +35,7 @@ namespace Module.EmailProxy.Application
         {
             _client = new MailClient(mailboxHandler, logger);
             _categorizer = new MessageCategorizer(mailboxHandler);
-            _mailman = new MailmanService(_client, aliases, mailboxHandler);
+            _mailman = new Mailman(_client, aliases, mailboxHandler);
             _logger = logger;
         }
 

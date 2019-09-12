@@ -10,22 +10,15 @@ namespace Module.EmailProxy.Domain
         public Alias()
         { }
 
-        public Alias(Guid aliasId, string recipient)
-            : base(aliasId)
+        public Alias(string recipient, ActivationCriteria activationCriteria)
+            : base()
         {
             Recipient = recipient;
-        }
-
-        public Alias(string recipient)
-        {
-            if (recipient is null)
-            {
-                throw new ArgumentNullException(nameof(recipient));
-            }
-
-            Recipient = recipient;
+            ActivationCriteria = activationCriteria;
         }
 
         public string Recipient { get; set; }
+
+        public ActivationCriteria ActivationCriteria { get; set; }
     }
 }
