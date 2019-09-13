@@ -42,8 +42,10 @@ namespace Module.EmailProxy.Infrastructure.EntityFrameworkCore.Repositories
 
         public async Task<Alias> Remove(Alias item)
         {
-            await Task.Yield();
             var entry = _context.Aliases.Remove(item);
+
+            await _context.SaveChangesAsync()
+                .ConfigureAwait(false);
 
             return entry.Entity;
         }
@@ -52,6 +54,9 @@ namespace Module.EmailProxy.Infrastructure.EntityFrameworkCore.Repositories
         {
             await Task.Yield();
             var entry = _context.Aliases.Update(item);
+
+            await _context.SaveChangesAsync()
+                .ConfigureAwait(false);
 
             return entry.Entity;
         }

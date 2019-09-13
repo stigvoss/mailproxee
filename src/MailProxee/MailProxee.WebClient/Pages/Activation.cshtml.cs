@@ -29,17 +29,20 @@ namespace MailProxee.WebClient.Pages
         {
             var alias = await _aliases.Find(AliasId);
 
-            if (alias?.ActivationCriteria?.IsActivated ?? false)
+            if (alias is null || Code is null)
+            {
+                Message = "Unable to activate.";
+            }
+            else if (alias.IsActivated)
             {
                 Message = "Alias already activated.";
             }
-            else if (alias?.ActivationCriteria?.ActivationCode == Code)
-            {
-                Message = "Alias activated.";
-            }
             else
             {
-                Message = "Unable to activate.";
+                alias.Activate(Code);
+                await _aliases.Update(alias);
+
+                Message = "Alias activated.";
             }
         }
     }
