@@ -15,4 +15,9 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Domain\Factories\" />
+    <Folder Include="Infrastructure\Repositories\" />
+  </ItemGroup>
+
 </Project>

@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Module.EmailProxy.Domain.Repositories;
 using Module.EmailProxy.Infrastructure.Base;
 using Module.EmailProxy.Infrastructure.EntityFrameworkCore;
 using Module.EmailProxy.Infrastructure.EntityFrameworkCore.Repositories;
@@ -41,6 +40,7 @@ namespace MailProxee.WebClient
 
             services.AddDbContext<AliasContext>(options => options.UseNpgsql(connectionString));
             services.AddTransient<IAliasRepository, AliasRepository>();
+            services.AddTransient<IMailDomainRepository, MailDomainRepository>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

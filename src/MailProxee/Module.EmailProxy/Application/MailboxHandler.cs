@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using MimeKit;
 using Module.EmailProxy.Domain;
 using Module.EmailProxy.Domain.Base;
-using Module.EmailProxy.Domain.Repositories;
 using Module.EmailProxy.Domain.Services;
 using Module.EmailProxy.Infrastructure;
 using Module.EmailProxy.Infrastructure.Base;

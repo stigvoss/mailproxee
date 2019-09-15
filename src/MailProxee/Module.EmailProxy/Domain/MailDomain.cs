@@ -1,13 +1,17 @@
-﻿using Module.EmailProxy.Domain.Services;
+﻿using Module.EmailProxy.Domain.Base;
+using Module.EmailProxy.Domain.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Module.EmailProxy.Domain.Factories
+namespace Module.EmailProxy.Domain
 {
-    public class AliasFactory
+    public class MailDomain
+        : AggregateRoot
     {
-        public static Alias AliasFrom(string recipient)
+        public string Name { get; set; }
+
+        public Alias AliasFrom(string recipient)
         {
             if (recipient is null)
             {
@@ -18,7 +22,7 @@ namespace Module.EmailProxy.Domain.Factories
             var activationCode = generator.GenerateCode();
             var activationCriteria = new ActivationCriteria(activationCode);
 
-            return new Alias(recipient, activationCriteria);
+            return new Alias(recipient, activationCriteria, this);
         }
     }
 }

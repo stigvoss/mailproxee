@@ -6,22 +6,26 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Module.EmailProxy.Domain;
-using Module.EmailProxy.Domain.Factories;
 using Module.EmailProxy.Infrastructure.Base;
 
 namespace MailProxee.WebClient.Pages
 {
     public class SignUpModel : PageModel
     {
-        private readonly IAliasRepository _repository;
+        private readonly IMailDomainRepository _domains;
+        private readonly IAliasRepository _aliases;
 
-        public SignUpModel(IAliasRepository repository)
+        public SignUpModel(IMailDomainRepository domains, IAliasRepository aliases)
         {
-            _repository = repository;
+            _domains = domains;
+            _aliases = aliases;
         }
 
         [BindProperty]
         public string Recipient { get; set; }
+
+        [BindProperty]
+        public string Domain { get; set; }
 
         [BindProperty]
         public Alias AssignedAlias { get; set; }
@@ -33,8 +37,9 @@ namespace MailProxee.WebClient.Pages
 
         public async Task OnPost()
         {
-            var alias = AliasFactory.AliasFrom(Recipient);
-            AssignedAlias = await _repository.Add(alias);
+            var domain = await _domains.Find(Domain);
+            var alias = domain.AliasFrom(Recipient);
+            AssignedAlias = await _aliases.Add(alias);
         }
     }
 }

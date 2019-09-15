@@ -31,8 +31,17 @@ namespace Module.EmailProxy.Infrastructure.EntityFrameworkCore
 
             modelBuilder.Entity<Alias>()
                 .OwnsOne(e => e.ActivationCriteria);
+
+            modelBuilder.Entity<MailDomain>()
+                .HasKey(e => e.Id);
+
+            modelBuilder.Entity<MailDomain>()
+                .Property(e => e.Name)
+                .IsRequired();
         }
 
         public DbSet<Alias> Aliases { get; set; }
+
+        public DbSet<MailDomain> Domains { get; set; }
     }
 }
